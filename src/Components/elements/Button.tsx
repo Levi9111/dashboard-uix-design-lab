@@ -1,8 +1,6 @@
-'use client';
-
-import Image from 'next/image';
 import arrow from '../../../public/icons/arrow.svg';
-import { ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -81,7 +79,7 @@ const Button = ({ children, type = 1, onClick }: ButtonProps) => {
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
             >
-              <Image
+              <img
                 src={arrow}
                 alt='Button Arrow'
                 width={29}
@@ -206,7 +204,7 @@ const Button = ({ children, type = 1, onClick }: ButtonProps) => {
               delay: 0.5,
             }}
           >
-            <Image
+            <img
               src={arrow}
               alt='Arrow'
               width={22}

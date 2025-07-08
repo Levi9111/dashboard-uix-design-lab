@@ -1,13 +1,7 @@
-'use client';
-
-import {
-  motion,
-  Variants,
-  useScroll,
-  useTransform,
-  useSpring,
-} from 'framer-motion';
-import { ReactNode, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+import { useRef } from 'react';
+import type { ReactNode } from 'react';
 import {
   User,
   Sparkles,
@@ -22,15 +16,6 @@ type PlanetTextProps = {
   title: string | ReactNode;
   subtitle: string | ReactNode;
   btnText?: string | ReactNode;
-};
-
-const desktopSubtitleVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.3, duration: 0.6, ease: 'easeOut' },
-  },
 };
 
 // Mobile animations - simplified and performant
@@ -171,19 +156,6 @@ const floatingIconVariants: Variants = {
       stiffness: 200,
       damping: 15,
       delay: 0.8,
-    },
-  },
-};
-
-const orbitVariants: Variants = {
-  hidden: { opacity: 0, scale: 0 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      delay: 0.6,
-      duration: 1.2,
-      ease: [0.25, 0.46, 0.45, 0.94],
     },
   },
 };

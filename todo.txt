@@ -4,5 +4,6 @@
 4. create manage FAQ functionality
 5. Create manage Features functionality
 6. Create Manage Pricing functionality
-7. Create A Very secured authentication system that lets only the super Admin to login and modify
+7. Create interective and dynamic charts
+8. Create A Very secured authentication system that lets only the super Admin to login and modify
 
