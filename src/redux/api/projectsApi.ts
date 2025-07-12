@@ -3,11 +3,14 @@ import { baseApi } from './baseApi';
 export const projectsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createProject: builder.mutation({
-      query: (formdata) => ({
-        url: '/projects/create-project',
-        method: 'POST',
-        bosy: formdata,
-      }),
+      query: (formdata) => {
+        console.log('API:=>', formdata);
+        return {
+          url: '/projects/create-project',
+          method: 'POST',
+          body: formdata,
+        };
+      },
     }),
 
     updateProject: builder.mutation({
