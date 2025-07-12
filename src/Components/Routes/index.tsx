@@ -5,6 +5,8 @@ import ManageProjects from '../ManageProjects';
 import ManageFaqs from '../ManageFaqs';
 import ManageReviews from '../ManageReviews';
 import ManageVisualCharts from '../ManageVisualCharts';
+import FaqList from '../FaqList';
+import CreateFaq from '../CreateFaq';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +25,16 @@ export const router = createBrowserRouter([
       {
         path: '/manage-faqs',
         element: <ManageFaqs />,
+        children: [
+          {
+            path: '',
+            element: <CreateFaq />,
+          },
+          {
+            path: 'all-faqs',
+            element: <FaqList />,
+          },
+        ],
       },
       {
         path: '/manage-reviews',
