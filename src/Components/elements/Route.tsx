@@ -1,7 +1,5 @@
-'use client';
-
-import Link from 'next/link';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 const Route = ({
   link,
@@ -15,7 +13,7 @@ const Route = ({
   className?: string;
 }) => {
   return (
-    <Link href={link} className={className} onClick={onClick}>
+    <Link to={link} className={className} onClick={onClick}>
       {children}
     </Link>
   );

@@ -1,17 +1,39 @@
-'use client';
-import { configureStore } from '@reduxjs/toolkit';
+// redux/store.ts
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { baseApi } from './api/baseApi';
 import storage from 'redux-persist/lib/storage';
-import { persistReducer } from 'redux-persist';
-import { persistStore } from 'redux-persist';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
 
+// 1️⃣ Combine reducers (add your other slices if needed)
+const rootReducer = combineReducers({
+  [baseApi.reducerPath]: baseApi.reducer,
+});
+
+const persistConfig = {
+  key: 'root',
+  storage,
+  whitelist: [],
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+// 4️⃣ Create store
 export const store = configureStore({
-  reducer: {
-    [baseApi.reducerPath]: baseApi.reducer,
-  },
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false,
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
     }).concat(baseApi.middleware),
 });
 

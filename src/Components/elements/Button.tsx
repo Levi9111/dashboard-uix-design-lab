@@ -1,4 +1,4 @@
-import arrow from '../../../public/icons/arrow.svg';
+import arrow from '/icons/arrow.svg';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import clsx from 'clsx';

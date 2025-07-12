@@ -55,21 +55,24 @@ const projectPie: ProjectCategory[] = [
 ];
 
 // Tooltip components
-const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
+const CustomTooltip = ({
   active,
   payload,
+}: {
+  active?: boolean;
+  payload?: Array<Record<string, unknown>>;
 }) => {
   if (active && payload && payload.length) {
     return (
       <div className='bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl p-4 shadow-2xl'>
-        {payload.map((entry, index) => (
+        {payload.map((entry: Record<string, unknown>, index: number) => (
           <div key={index} className='flex items-center gap-2 mb-1'>
             <div
               className='w-3 h-3 rounded-full'
-              style={{ backgroundColor: entry.color }}
+              style={{ backgroundColor: entry.color as string }}
             />
             <span className='text-white capitalize'>
-              {entry.dataKey}: {entry.value}
+              {String(entry.dataKey)}: {String(entry.value)}
             </span>
           </div>
         ))}
@@ -82,6 +85,9 @@ const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
 const CustomPieTooltip: React.FC<TooltipProps<number, string>> = ({
   active,
   payload,
+}: {
+  active?: boolean;
+  payload?: Array<Record<string, unknown>>;
 }) => {
   if (active && payload && payload.length) {
     return (
@@ -89,10 +95,10 @@ const CustomPieTooltip: React.FC<TooltipProps<number, string>> = ({
         <div className='flex items-center gap-2'>
           <div
             className='w-4 h-4 rounded-full'
-            style={{ backgroundColor: payload[0].color }}
+            style={{ backgroundColor: payload[0].color as string }}
           />
           <span className='text-white font-semibold'>
-            {payload[0].name}: {payload[0].value}
+            {String(payload[0].name)}: {String(payload[0].value)}
           </span>
         </div>
       </div>

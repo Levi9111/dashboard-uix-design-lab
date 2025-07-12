@@ -7,7 +7,8 @@ import {
   SiBehance,
 } from 'react-icons/si';
 
-import logo from '../../public/logos/logo.svg';
+// import logo from '../../public/logos/logo.svg';
+import logo from '/logos/logo.svg';
 
 const iconArr = [
   {
