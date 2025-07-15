@@ -13,6 +13,7 @@ interface Props {
 }
 
 const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
+  const [updateProject, { isLoading }] = useUpdateProjectMutation();
   const { register, handleSubmit } = useForm({
     defaultValues: {
       title: project.title,
@@ -20,15 +21,11 @@ const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
     },
   });
 
-  const [updateProject, { isLoading }] = useUpdateProjectMutation();
-
   const onSubmit = async (data: { title: string; description: string }) => {
     try {
-      console.log(data);
-
       const result = await updateProject({
         id: project._id,
-        project: { data },
+        data,
       }).unwrap();
       onSuccess();
 

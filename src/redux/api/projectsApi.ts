@@ -4,7 +4,6 @@ export const projectsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createProject: builder.mutation({
       query: (formdata) => {
-        console.log('API:=>', formdata);
         return {
           url: '/projects/create-project',
           method: 'POST',
@@ -14,11 +13,13 @@ export const projectsApi = baseApi.injectEndpoints({
     }),
 
     updateProject: builder.mutation({
-      query: ({ id, data }) => ({
-        url: `/projects/update-project/${id}`,
-        method: 'PATCH',
-        body: data,
-      }),
+      query: ({ id, data }) => {
+        return {
+          url: `/projects/update-project/${id}`,
+          method: 'PATCH',
+          body: data,
+        };
+      },
     }),
 
     getAllProjects: builder.query({
