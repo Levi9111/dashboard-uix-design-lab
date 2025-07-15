@@ -60,7 +60,6 @@ const CreateProject = () => {
         });
         reset();
       }
-      console.log('Result from mutation:', result);
     } catch (err) {
       console.error('Mutation failed:', err);
     } finally {

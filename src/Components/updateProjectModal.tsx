@@ -1,6 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { useUpdateProjectMutation } from '../redux/api/projectsApi';
 import GalacticModal from './ui/GalacticModal';
+import { useState } from 'react';
+import ToastMessage from './ui/ToastMessage';
 
 interface Props {
   project: {
@@ -13,8 +15,17 @@ interface Props {
 }
 
 const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
   const [updateProject, { isLoading }] = useUpdateProjectMutation();
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       title: project.title,
       description: project.description,
@@ -29,7 +40,21 @@ const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
       }).unwrap();
       onSuccess();
 
-      console.log(result);
+      if (result.data.success) {
+        setToast({
+          show: true,
+          message: result.data.message,
+          type: 'success',
+        });
+        reset();
+      } else {
+        setToast({
+          show: true,
+          message: result.data.message,
+          type: 'error',
+        });
+        reset();
+      }
     } catch (err) {
       console.error('Update failed:', err);
     }
@@ -37,6 +62,11 @@ const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
 
   return (
     <GalacticModal isOpen={true} onClose={onClose} title='Update Project'>
+      <ToastMessage
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+      />
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-5 mt-6'>
         <div>
           <label className='block mb-1 font-semibold text-white'>Title</label>
