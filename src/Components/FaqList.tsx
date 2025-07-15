@@ -37,19 +37,26 @@ const FaqList = () => {
     try {
       const result = await deleteFaq(selectedId).unwrap();
 
-      console.log(result);
-
-      setToast({
-        show: true,
-        message: 'FAQ deleted successfully',
-        type: 'success',
-      });
-      refetch();
+      if (result.data.success) {
+        setToast({
+          show: true,
+          message: result.data.message,
+          type: 'success',
+        });
+        refetch();
+      } else {
+        setToast({
+          show: true,
+          message: result.data.message,
+          type: 'error',
+        });
+        refetch();
+      }
     } catch {
       setToast({ show: true, message: 'Failed to delete FAQ', type: 'error' });
     } finally {
       setSelectedId(null);
-      setTimeout(() => setToast({ ...toast, show: false }), 30000);
+      setTimeout(() => setToast({ ...toast, show: false }), 3000);
     }
   };
 

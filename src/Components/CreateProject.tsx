@@ -2,6 +2,8 @@ import { useForm } from 'react-hook-form';
 import Route from './elements/Route';
 import { ArrowRight } from 'lucide-react';
 import { useCreateProjectMutation } from '../redux/api/projectsApi';
+import ToastMessage from './ui/ToastMessage';
+import { useState } from 'react';
 
 type ProjectFormData = {
   title: string;
@@ -18,6 +20,15 @@ const CreateProject = () => {
   } = useForm<ProjectFormData>();
 
   const [createProject, { isLoading }] = useCreateProjectMutation();
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
 
   const onSubmit = async (data: ProjectFormData) => {
     const formdata = new FormData();
@@ -32,19 +43,39 @@ const CreateProject = () => {
       }),
     );
 
-    console.log('Preparing to send formdata:', formdata);
-
     try {
       const result = await createProject(formdata);
+      if (result.data.success) {
+        setToast({
+          show: true,
+          message: result.data.message,
+          type: 'success',
+        });
+        reset();
+      } else {
+        setToast({
+          show: true,
+          message: result.data.message,
+          type: 'error',
+        });
+        reset();
+      }
       console.log('Result from mutation:', result);
     } catch (err) {
       console.error('Mutation failed:', err);
+    } finally {
+      setTimeout(() => setToast({ ...toast, show: false }), 3000);
     }
   };
 
   return (
     <>
       {' '}
+      <ToastMessage
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+      />
       <form
         onSubmit={handleSubmit(onSubmit)}
         className='max-w-xl mx-auto mt-12 bg-white/5 border border-white/10 backdrop-blur-md shadow-xl rounded-2xl p-8 space-y-6 glassmorphic'
@@ -103,10 +134,11 @@ const CreateProject = () => {
 
         {/* Submit */}
         <button
+          disabled={isLoading}
           type='submit'
           className='w-full py-3 mt-4 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-lg hover:scale-[1.02] transition-transform'
         >
-          Submit Project
+          {isLoading ? 'Submitting' : 'Submit Project'}
         </button>
       </form>
       <Route link='/manage-projects/all-projects'>

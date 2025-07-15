@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useUpdateProjectMutation } from '../redux/api/projectsApi';
+import GalacticModal from './ui/GalacticModal';
 
 interface Props {
   project: {
@@ -22,53 +23,63 @@ const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
   const [updateProject, { isLoading }] = useUpdateProjectMutation();
 
   const onSubmit = async (data: { title: string; description: string }) => {
-    await updateProject({ id: project._id, data });
-    onSuccess();
+    try {
+      console.log(data);
+
+      const result = await updateProject({
+        id: project._id,
+        project: { data },
+      }).unwrap();
+      onSuccess();
+
+      console.log(result);
+    } catch (err) {
+      console.error('Update failed:', err);
+    }
   };
 
   return (
-    <div className='fixed inset-0 bg-black/60 z-50 flex items-center justify-center'>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className='bg-white rounded-xl p-6 max-w-md w-full space-y-4'
-      >
-        <h2 className='text-lg font-bold'>Update Project</h2>
-
+    <GalacticModal isOpen={true} onClose={onClose} title='Update Project'>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-5 mt-6'>
         <div>
-          <label className='block text-sm font-medium'>Title</label>
+          <label className='block mb-1 font-semibold text-white'>Title</label>
           <input
-            type='text'
             {...register('title', { required: true })}
-            className='w-full border px-3 py-2 rounded mt-1'
+            className='w-full px-4 py-2 rounded bg-white/10 text-white outline-none border border-white/20 focus:border-purple-500'
+            placeholder='Enter title'
           />
         </div>
 
         <div>
-          <label className='block text-sm font-medium'>Description</label>
+          <label className='block mb-1 font-semibold text-white'>
+            Description
+          </label>
           <textarea
+            rows={4}
             {...register('description', { required: true })}
-            className='w-full border px-3 py-2 rounded mt-1'
+            className='w-full px-4 py-2 rounded bg-white/10 text-white outline-none border border-white/20 focus:border-purple-500 resize-none'
+            placeholder='Enter description'
           />
         </div>
 
-        <div className='flex justify-end gap-3'>
+        <div className='flex justify-end gap-4 mt-6'>
           <button
             type='button'
             onClick={onClose}
-            className='px-4 py-2 border rounded bg-gray-200'
+            className='px-4 py-2 border rounded-lg text-sm text-white/70 hover:text-white hover:border-purple-400 transition'
           >
             Cancel
           </button>
           <button
             type='submit'
             disabled={isLoading}
-            className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
+            className='px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:scale-[1.02] transition'
           >
             {isLoading ? 'Updating...' : 'Update'}
           </button>
         </div>
       </form>
-    </div>
+    </GalacticModal>
   );
 };
 

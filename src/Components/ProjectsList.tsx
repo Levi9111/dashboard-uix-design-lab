@@ -7,6 +7,13 @@ import {
 import { useState } from 'react';
 import UpdateProjectModal from './updateProjectModal';
 
+type TProjects = {
+  _id: string;
+  title: string;
+  description: string;
+  projectImageUrl: string;
+};
+
 const ProjectsList = () => {
   const {
     data: projects,
@@ -43,7 +50,7 @@ const ProjectsList = () => {
         <p className='text-white'>Loading projects...</p>
       ) : (
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {projects?.data.map((project: any) => (
+          {projects?.data.map((project: TProjects) => (
             <div
               key={project._id}
               className='bg-white/5 border border-white/10 backdrop-blur-md rounded-xl p-5 shadow-md text-white relative group'
