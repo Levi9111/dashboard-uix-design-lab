@@ -11,12 +11,13 @@ import CreateProject from '../CreateProject';
 import ProjectsList from '../ProjectsList';
 import CreateReview from '../CreateReview';
 import ReviewsList from '../ReviewsList';
+import ErrorPage from '../ui/ErrorPage';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
-    errorElement: <div>Error Page</div>,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',
