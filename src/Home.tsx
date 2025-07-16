@@ -1,15 +1,15 @@
+import { PlanetText } from './Components/elements/PlanetText';
+
 const Home = () => {
   return (
     <main className='px-6 md:px-20 py-28 space-y-16'>
       {/* Hero Section */}
-      <section className='text-center space-y-4'>
-        <h1 className='text-4xl md:text-6xl font-bold text-white'>
-          Admin Dashboard
-        </h1>
-        <p className='text-gray-300 text-lg md:text-xl max-w-2xl mx-auto'>
-          Manage all aspects of the UIX Design Lab — from projects and reviews
-          to team oversight and analytics — all in one place.
-        </p>
+      <section className='uix-center text-center space-y-4'>
+        <PlanetText
+          title='Admin Dashboard'
+          subtitle='Manage all aspects of the UIX Design Lab — from projects and reviews
+          to team oversight and analytics — all in one place.'
+        />
       </section>
 
       {/* Admin Features */}
