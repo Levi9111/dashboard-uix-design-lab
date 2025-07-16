@@ -1,6 +1,9 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import Route from './elements/Route';
 import { ArrowRight } from 'lucide-react';
+import { useCreateReviewMutation } from '../redux/api/reviewsApi';
+import ToastMessage from './ui/ToastMessage';
+import { useState } from 'react';
 
 type ReviewFormData = {
   title: string;
@@ -29,19 +32,87 @@ const CreateReview = () => {
     },
   });
 
+  const [createReview, { isLoading }] = useCreateReviewMutation();
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'stats',
   });
 
-  const onSubmit = (data: ReviewFormData) => {
-    data.stats = data.stats.filter((s) => s.label && s.value); // cleanup
-    console.log('Review Submitted:', data);
-    reset();
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
+
+  const onSubmit = async (data: ReviewFormData) => {
+    const { title, name, role, description, roi, revenue, image, stats } = data;
+    try {
+      const formdata = new FormData();
+
+      const file = image[0];
+
+      formdata.append('file', file);
+
+      const formattedStats: Record<string, string> = {};
+
+      stats
+        .filter((s) => s.label && s.value)
+        .forEach((stat) => {
+          formattedStats[stat.label] = stat.value;
+        });
+
+      const payload = {
+        review: {
+          title,
+          name,
+          role,
+          description,
+          roi,
+          revenue,
+          stats: formattedStats,
+        },
+      };
+
+      formdata.append('data', JSON.stringify(payload));
+
+      const result = await createReview(formdata).unwrap();
+
+      if (result.success) {
+        setToast({
+          show: true,
+          message: result.message,
+          type: 'success',
+        });
+      } else {
+        setToast({
+          show: true,
+          message: result.message,
+          type: 'error',
+        });
+      }
+      reset();
+    } catch (error) {
+      console.error(error);
+      reset();
+    } finally {
+      setTimeout(() => {
+        setToast({ ...toast, show: false });
+      }, 3000);
+    }
   };
 
   return (
     <>
+      <ToastMessage
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+      />
       <form
         onSubmit={handleSubmit(onSubmit)}
         className='max-w-2xl mx-auto mt-12 bg-white/5 border border-white/10 backdrop-blur-md shadow-xl rounded-2xl p-8 space-y-6'
@@ -175,9 +246,12 @@ const CreateReview = () => {
         {/* Submit */}
         <button
           type='submit'
-          className='w-full py-3 mt-6 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-lg hover:scale-[1.02] transition-transform'
+          disabled={isLoading}
+          className={`w-full py-3 mt-6 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-lg transition-transform hover:scale-[1.02] ${
+            isLoading ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+          }`}
         >
-          Submit Review
+          {isLoading ? 'Submitting...' : 'Submit Review'}
         </button>
       </form>
 
