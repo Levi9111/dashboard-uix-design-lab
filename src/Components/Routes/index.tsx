@@ -5,6 +5,9 @@ import ManageProjects from '../ManageProjects';
 import ManageFaqs from '../ManageFaqs';
 import ManageReviews from '../ManageReviews';
 import ManageVisualCharts from '../ManageVisualCharts';
+import ManagePricing from '../ManagePricing';
+import SiteConfigManager from '../SiteConfigManager';
+import CategoryManager from '../CategoryManager';
 import FaqList from '../FaqList';
 import CreateFaq from '../CreateFaq';
 import CreateProject from '../CreateProject';
@@ -64,6 +67,18 @@ export const router = createBrowserRouter([
             element: <ReviewsList />,
           },
         ],
+      },
+      {
+        path: '/manage-pricing',
+        element: <ManagePricing />,
+      },
+      {
+        path: '/site-config',
+        element: <SiteConfigManager />,
+      },
+      {
+        path: '/manage-categories',
+        element: <CategoryManager />,
       },
       {
         path: '/visuals',

@@ -1,149 +1,179 @@
-import { motion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-// import logo from '../../public/logos/logo.svg';
 import logo from '/logos/logo.svg';
-import Button from './elements/Button';
+import { 
+  FolderKanban, 
+  HelpCircle, 
+  MessageSquareQuote, 
+  BarChart3, 
+  Settings, 
+  CreditCard,
+  Radio,
+  Sparkles,
+  Layers,
+  Menu,
+  X
+} from 'lucide-react';
 
 const navLinks = [
-  { title: 'Home', path: '/' },
-  { title: 'Manage Projects', path: '/manage-projects' },
-  { title: 'Manage FAQs', path: '/manage-faqs' },
-  { title: 'Manage Reviews', path: '/manage-reviews' },
-  { title: 'Visuals', path: '/visuals' },
+  { title: 'Overview', path: '/', icon: Sparkles },
+  { title: 'Projects', path: '/manage-projects', icon: FolderKanban },
+  { title: 'FAQs', path: '/manage-faqs', icon: HelpCircle },
+  { title: 'Reviews', path: '/manage-reviews', icon: MessageSquareQuote },
+  { title: 'Pricing', path: '/manage-pricing', icon: CreditCard },
+  { title: 'Taxonomy', path: '/manage-categories', icon: Layers },
+  { title: 'Site Config', path: '/site-config', icon: Settings },
+  { title: 'Analytics', path: '/visuals', icon: BarChart3 },
 ];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrollY(currentScrollY);
-      setScrolled(currentScrollY > 10);
+      setScrolled(window.scrollY > 15);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const logoOpacity = Math.max(0.5, 1 - scrollY / 100);
-  const logoScale = Math.max(0.85, 1 - scrollY / 200);
-  const buttonOpacity = Math.max(0.7, 1 - scrollY / 80);
-  const buttonScale = Math.max(0.9, 1 - scrollY / 150);
-
-  const linkVariants: Variants = {
-    hidden: { y: -20, opacity: 0 },
-    visible: (i: number) => ({
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        delay: 0.1 * i + 0.4,
-        ease: 'easeOut',
-        type: 'spring',
-        stiffness: 120,
-        damping: 10,
-      },
-    }),
-    hover: {
-      y: -3,
-      color: '#ffffff',
-      scale: 1.05,
-      transition: { duration: 0.2, type: 'spring', stiffness: 300 },
-    },
-  };
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   return (
-    <motion.nav
-      className={`fixed left-0 right-0 top-0 z-50 hidden lg:flex items-center transition-all duration-300 ${
-        scrolled ? 'h-[72px] py-1' : 'h-[100px] py-3'
+    <motion.header
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'py-2.5 bg-[#04070d]/90 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-purple-950/20'
+          : 'py-3.5 bg-[#04070d]/70 backdrop-blur-md border-b border-white/5'
       }`}
-      style={{
-        background: scrolled
-          ? 'rgba(20, 20, 20, 0.7)'
-          : 'rgba(20, 20, 20, 0.4)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        borderBottom: scrolled
-          ? '1px solid rgba(255, 255, 255, 0.1)'
-          : '1px solid transparent',
-      }}
     >
-      <div className='flex items-center justify-between w-full max-w-7xl mx-auto px-6 transition-all duration-300'>
-        {/* Logo and Title */}
-        <motion.div
-          className='flex items-center gap-3'
-          style={{ opacity: logoOpacity, scale: logoScale }}
-        >
-          <Link to='/'>
-            <motion.img
+      <div className='max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-4'>
+        {/* Brand Logo & Title */}
+        <Link to='/' className='flex items-center gap-2.5 group shrink-0'>
+          <div className='relative flex items-center justify-center'>
+            <div className='absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-md opacity-50 group-hover:opacity-90 transition duration-300'></div>
+            <img
               src={logo}
-              alt='Logo'
-              width={56}
-              height={56}
-              className='w-12 h-12'
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.3 }}
+              alt='UIX Design Lab'
+              className='w-8 h-8 relative z-10 transform group-hover:scale-105 transition duration-300'
             />
-          </Link>
-          {logoOpacity > 0.3 && (
-            <motion.span
-              className='text-2xl font-semibold text-white'
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              Dashboard
-            </motion.span>
-          )}
-        </motion.div>
+          </div>
+          <div className='flex items-center gap-2'>
+            <span className='font-bold text-base text-white tracking-wide font-outfit whitespace-nowrap'>
+              UIX Design Lab
+            </span>
+            <span className='px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full whitespace-nowrap hidden sm:inline-block'>
+              CMS
+            </span>
+          </div>
+        </Link>
 
-        {/* Navigation Links */}
-        <motion.ul className='flex gap-8 items-center'>
-          {navLinks.map((link, i) => (
-            <motion.li
-              key={link.title}
-              custom={i}
-              variants={linkVariants}
-              initial='hidden'
-              animate='visible'
-              whileHover='hover'
-              className={`text-lg font-medium cursor-pointer relative group ${
-                location.pathname === link.path
-                  ? 'text-white'
-                  : 'text-silver-mist'
-              }`}
-            >
-              <Link to={link.path}>{link.title}</Link>
-              <div
-                className={`absolute left-0 -bottom-1 h-0.5 w-full scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ${
-                  location.pathname === link.path
-                    ? 'scale-x-100 bg-white'
-                    : 'bg-white/60'
+        {/* Desktop Navigation Links */}
+        <nav className='hidden xl:flex items-center gap-0.5 bg-white/[0.04] p-1 rounded-2xl border border-white/10 backdrop-blur-lg shadow-inner'>
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive =
+              link.path === '/'
+                ? location.pathname === '/'
+                : location.pathname.startsWith(link.path);
+
+            return (
+              <Link
+                key={link.title}
+                to={link.path}
+                className={`relative px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap ${
+                  isActive
+                    ? 'text-white font-bold'
+                    : 'text-gray-400 hover:text-white hover:bg-white/[0.06]'
                 }`}
-              />
-            </motion.li>
-          ))}
-        </motion.ul>
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId='activeTab'
+                    className='absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 rounded-xl shadow-md shadow-purple-900/40 border border-white/20'
+                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                  />
+                )}
+                <Icon className={`w-3.5 h-3.5 relative z-10 shrink-0 ${isActive ? 'text-white' : 'text-purple-400/70'}`} />
+                <span className='relative z-10 whitespace-nowrap'>{link.title}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
-        {/* CTA Button */}
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          style={{
-            opacity: buttonOpacity,
-            scale: buttonScale,
-          }}
-        >
-          <Link to='/user-management'>
-            <Button>All Users</Button>
+        {/* Right Section: Status Pill & Mobile Menu Toggle */}
+        <div className='flex items-center gap-2.5 shrink-0'>
+          <div className='hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-medium whitespace-nowrap'>
+            <Radio className='w-3 h-3 animate-pulse text-emerald-400' />
+            <span>API Online</span>
+          </div>
+
+          <Link
+            to='/site-config'
+            className='p-2 rounded-xl bg-white/5 border border-white/10 hover:border-purple-400 hover:bg-purple-500/10 text-gray-300 hover:text-white transition group'
+            title='Site Configuration'
+          >
+            <Settings className='w-4 h-4 group-hover:rotate-90 transition duration-300' />
           </Link>
-        </motion.div>
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className='xl:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white transition'
+            aria-label='Toggle menu'
+          >
+            {mobileMenuOpen ? <X className='w-5 h-5' /> : <Menu className='w-5 h-5' />}
+          </button>
+        </div>
       </div>
-    </motion.nav>
+
+      {/* Mobile Drawer Dropdown */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className='xl:hidden bg-[#04070d]/95 backdrop-blur-2xl border-b border-white/10 px-4 py-4 space-y-2 mt-2'
+          >
+            <div className='grid grid-cols-2 sm:grid-cols-4 gap-2'>
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive =
+                  link.path === '/'
+                    ? location.pathname === '/'
+                    : location.pathname.startsWith(link.path);
+
+                return (
+                  <Link
+                    key={link.title}
+                    to={link.path}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                      isActive
+                        ? 'bg-purple-600/90 text-white border border-purple-500/40 shadow-lg'
+                        : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/5'
+                    }`}
+                  >
+                    <Icon className='w-3.5 h-3.5 text-purple-400 shrink-0' />
+                    <span className='truncate'>{link.title}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 };
 
