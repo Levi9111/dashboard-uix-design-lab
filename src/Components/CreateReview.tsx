@@ -1,22 +1,19 @@
-import { useForm, useFieldArray } from 'react-hook-form';
-import Route from './elements/Route';
-import { ArrowRight } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { useCreateReviewMutation } from '../redux/api/reviewsApi';
 import ToastMessage from './ui/ToastMessage';
+import ImageUploader from './ui/ImageUploader';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MessageSquareQuote, User, Building, Briefcase, TrendingUp, Award, FileText } from 'lucide-react';
 
 type ReviewFormData = {
-  company: string;
   name: string;
   role: string;
+  company: string;
   testimonial: string;
   roi: string;
   revenue: string;
   avatarUrl: string;
-  stats: {
-    label: string;
-    value: string;
-  }[];
 };
 
 const CreateReview = () => {
@@ -24,19 +21,18 @@ const CreateReview = () => {
     register,
     handleSubmit,
     reset,
-    control,
+    setValue,
+    watch,
+    formState: { errors },
   } = useForm<ReviewFormData>({
     defaultValues: {
-      stats: [{ label: '', value: '' }],
+      avatarUrl: '',
     },
   });
 
+  const currentAvatar = watch('avatarUrl');
+  const navigate = useNavigate();
   const [createReview, { isLoading }] = useCreateReviewMutation();
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'stats',
-  });
 
   const [toast, setToast] = useState<{
     show: boolean;
@@ -49,29 +45,18 @@ const CreateReview = () => {
   });
 
   const onSubmit = async (data: ReviewFormData) => {
-    const { company, name, role, testimonial, roi, revenue, avatarUrl, stats } = data;
     try {
-      const formattedStats: Record<string, string> = {};
-
-      stats
-        .filter((s) => s.label && s.value)
-        .forEach((stat) => {
-          formattedStats[stat.label] = stat.value;
-        });
-
       const payload = {
-        company,
-        name,
-        role,
-        testimonial,
-        roi,
-        revenue,
-        avatarUrl,
-        stats: formattedStats,
+        name: data.name,
+        role: data.role,
+        company: data.company,
+        testimonial: data.testimonial,
+        roi: data.roi,
+        revenue: data.revenue,
+        avatarUrl: data.avatarUrl,
       };
 
       const result = await createReview(payload).unwrap();
-
       if (result.success) {
         setToast({
           show: true,
@@ -79,6 +64,9 @@ const CreateReview = () => {
           type: 'success',
         });
         reset();
+        setTimeout(() => {
+          navigate('/manage-reviews/all-reviews');
+        }, 1200);
       } else {
         setToast({
           show: true,
@@ -86,168 +74,178 @@ const CreateReview = () => {
           type: 'error',
         });
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       setToast({
         show: true,
         message: 'Failed to create review',
         type: 'error',
       });
     } finally {
-      setTimeout(() => {
-        setToast((prev) => ({ ...prev, show: false }));
-      }, 3000);
+      setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
     }
   };
 
   return (
-    <>
+    <div className='max-w-3xl mx-auto space-y-6'>
       <ToastMessage
         show={toast.show}
         message={toast.message}
         type={toast.type}
       />
+
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className='max-w-2xl mx-auto mt-12 bg-white/5 border border-white/10 backdrop-blur-md shadow-xl rounded-2xl p-8 space-y-6'
+        className='glass-panel p-8 rounded-3xl border border-white/10 space-y-6'
       >
-        {/* Basic Info */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-          <div>
-            <label className='text-white font-medium'>Company Name</label>
-            <input
-              {...register('company', { required: true })}
-              className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-              placeholder='e.g. StyleHub'
-            />
+        <div className='flex items-center gap-3 border-b border-white/10 pb-5'>
+          <div className='p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400'>
+            <MessageSquareQuote className='w-6 h-6' />
           </div>
-
           <div>
-            <label className='text-white font-medium'>Name</label>
-            <input
-              {...register('name', { required: true })}
-              className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-              placeholder='e.g. Lana Rodriguez'
-            />
+            <h2 className='text-2xl font-bold text-white font-outfit'>Add Client Testimonial</h2>
+            <p className='text-xs text-gray-400'>Upload client avatar and submit verified revenue & ROI case studies</p>
           </div>
+        </div>
 
-          <div>
-            <label className='text-white font-medium'>Role</label>
-            <input
-              {...register('role', { required: true })}
-              className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-              placeholder='e.g. CEO'
-            />
-          </div>
+        {/* Client Avatar File Uploader */}
+        <ImageUploader
+          label='Client Profile Avatar'
+          value={currentAvatar}
+          onChange={(url) => setValue('avatarUrl', url)}
+        />
 
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          {/* Name */}
           <div>
-            <label className='block text-white mb-1 font-medium'>
-              Avatar URL (Cloudinary / Hosted)
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
+              Client Name
             </label>
-            <input
-              type='text'
-              {...register('avatarUrl')}
-              className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-              placeholder='https://res.cloudinary.com/...'
-            />
+            <div className='relative'>
+              <User className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
+              <input
+                type='text'
+                {...register('name', { required: 'Name is required' })}
+                className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-cyan-500 focus:bg-white/10 transition text-sm'
+                placeholder='e.g. Sarah Connor'
+              />
+            </div>
+            {errors.name && (
+              <p className='text-red-400 text-xs mt-1'>{errors.name.message}</p>
+            )}
+          </div>
+
+          {/* Role */}
+          <div>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
+              Role & Title
+            </label>
+            <div className='relative'>
+              <Briefcase className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
+              <input
+                type='text'
+                {...register('role', { required: 'Role is required' })}
+                className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-cyan-500 focus:bg-white/10 transition text-sm'
+                placeholder='e.g. Head of Product'
+              />
+            </div>
+            {errors.role && (
+              <p className='text-red-400 text-xs mt-1'>{errors.role.message}</p>
+            )}
+          </div>
+
+          {/* Company */}
+          <div>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
+              Company Name
+            </label>
+            <div className='relative'>
+              <Building className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
+              <input
+                type='text'
+                {...register('company')}
+                className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-cyan-500 focus:bg-white/10 transition text-sm'
+                placeholder='e.g. Cyberdyne Inc'
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          {/* ROI Tag */}
+          <div>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
+              ROI Impact Tag
+            </label>
+            <div className='relative'>
+              <TrendingUp className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
+              <input
+                type='text'
+                {...register('roi')}
+                className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-cyan-500 focus:bg-white/10 transition text-sm'
+                placeholder='e.g. +340% Conversions'
+              />
+            </div>
+          </div>
+
+          {/* Revenue Tag */}
+          <div>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
+              Revenue Impact Tag
+            </label>
+            <div className='relative'>
+              <Award className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
+              <input
+                type='text'
+                {...register('revenue')}
+                className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-cyan-500 focus:bg-white/10 transition text-sm'
+                placeholder='e.g. $1.2M ARR Generated'
+              />
+            </div>
           </div>
         </div>
 
         {/* Testimonial */}
         <div>
-          <label className='text-white font-medium'>Testimonial</label>
-          <textarea
-            {...register('testimonial', { required: true })}
-            rows={4}
-            className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none resize-none'
-            placeholder='Write the full testimonial here...'
-          />
-        </div>
-
-        {/* ROI & Revenue */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-          <div>
-            <label className='text-white font-medium'>ROI</label>
-            <input
-              {...register('roi')}
-              className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-              placeholder='e.g. 42%'
+          <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
+            Client Testimonial Quote
+          </label>
+          <div className='relative'>
+            <FileText className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
+            <textarea
+              rows={4}
+              {...register('testimonial', {
+                required: 'Testimonial quote is required',
+              })}
+              className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-cyan-500 focus:bg-white/10 transition text-sm resize-none'
+              placeholder='Write the verified feedback or case study summary...'
             />
           </div>
-          <div>
-            <label className='text-white font-medium'>Revenue Impact</label>
-            <input
-              {...register('revenue')}
-              className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-              placeholder='e.g. 30%'
-            />
-          </div>
-        </div>
-
-        {/* Dynamic Stats */}
-        <div className='space-y-4 mt-6'>
-          <div className='flex justify-between items-center'>
-            <label className='text-white font-medium text-lg'>Stats</label>
-            <button
-              type='button'
-              onClick={() => {
-                if (fields.length < 3) append({ label: '', value: '' });
-              }}
-              disabled={fields.length >= 3}
-              className='text-sm px-3 py-1 rounded bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold  hover:scale-[1.02] transition-transform disabled:opacity-50'
-            >
-              + Add Stat
-            </button>
-          </div>
-
-          {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className='grid grid-cols-1 sm:grid-cols-3 gap-4 items-end'
-            >
-              <div>
-                <label className='text-white font-medium'>Label</label>
-                <input
-                  {...register(`stats.${index}.label`)}
-                  className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-                  placeholder='e.g. Conversions'
-                />
-              </div>
-              <div>
-                <label className='text-white font-medium'>Value</label>
-                <input
-                  {...register(`stats.${index}.value`)}
-                  className='w-full mt-1 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/10 focus:border-purple-400 outline-none'
-                  placeholder='e.g. 42%'
-                />
-              </div>
-              <button
-                type='button'
-                onClick={() => remove(index)}
-                className='text-red-400 hover:underline text-sm sm:mt-6'
-              >
-                Remove
-              </button>
-            </div>
-          ))}
+          {errors.testimonial && (
+            <p className='text-red-400 text-xs mt-1'>
+              {errors.testimonial.message}
+            </p>
+          )}
         </div>
 
         {/* Submit */}
-        <button
-          type='submit'
-          disabled={isLoading}
-          className={`w-full py-3 mt-6 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-lg transition-transform hover:scale-[1.02] ${
-            isLoading ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
-          }`}
-        >
-          {isLoading ? 'Submitting...' : 'Submit Review'}
-        </button>
+        <div className='pt-4 border-t border-white/10 flex justify-end gap-4'>
+          <button
+            type='button'
+            onClick={() => reset()}
+            className='px-5 py-3 rounded-xl border border-white/15 text-gray-400 hover:text-white transition text-sm font-semibold'
+          >
+            Reset Form
+          </button>
+          <button
+            disabled={isLoading}
+            type='submit'
+            className='px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold text-sm hover:shadow-lg hover:shadow-cyan-600/30 transition transform hover:-translate-y-0.5'
+          >
+            {isLoading ? 'Saving Review...' : 'Publish Testimonial'}
+          </button>
+        </div>
       </form>
-
-      <Route link='/manage-reviews/all-reviews'>
-        <ArrowRight className='w-5 h-5' />
-      </Route>
-    </>
+    </div>
   );
 };
 

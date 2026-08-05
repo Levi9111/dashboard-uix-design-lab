@@ -2,8 +2,9 @@ import { useForm } from 'react-hook-form';
 import { useCreateProjectMutation } from '../redux/api/projectsApi';
 import { useGetAllCategoriesQuery } from '../redux/api/categoriesApi';
 import ToastMessage from './ui/ToastMessage';
+import ImageUploader from './ui/ImageUploader';
 import { useState } from 'react';
-import { Sparkles, Image, Link as LinkIcon, FolderKanban, Tag, FileText } from 'lucide-react';
+import { Sparkles, Link as LinkIcon, FolderKanban, Tag, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 type ProjectFormData = {
@@ -19,9 +20,16 @@ const CreateProject = () => {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
-  } = useForm<ProjectFormData>();
+  } = useForm<ProjectFormData>({
+    defaultValues: {
+      image: '',
+    },
+  });
 
+  const currentImage = watch('image');
   const navigate = useNavigate();
   const { data: categoriesData } = useGetAllCategoriesQuery();
   const [createProject, { isLoading }] = useCreateProjectMutation();
@@ -36,6 +44,15 @@ const CreateProject = () => {
   });
 
   const onSubmit = async (data: ProjectFormData) => {
+    if (!data.image) {
+      setToast({
+        show: true,
+        message: 'Please upload a project preview image',
+        type: 'error',
+      });
+      return;
+    }
+
     try {
       const result = await createProject(data).unwrap();
       if (result.success) {
@@ -84,9 +101,16 @@ const CreateProject = () => {
           </div>
           <div>
             <h2 className='text-2xl font-bold text-white font-outfit'>Add Portfolio Project</h2>
-            <p className='text-xs text-gray-400'>Fill in project metadata to render on the showcase page</p>
+            <p className='text-xs text-gray-400'>Upload project images and fill metadata to publish on the website</p>
           </div>
         </div>
+
+        {/* Image File Uploader */}
+        <ImageUploader
+          label='Project Showcase Image'
+          value={currentImage}
+          onChange={(url) => setValue('image', url)}
+        />
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {/* Project Title */}
@@ -156,44 +180,23 @@ const CreateProject = () => {
           )}
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {/* Image URL */}
-          <div>
-            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
-              Image URL (Cloudinary / Hosted)
-            </label>
-            <div className='relative'>
-              <Image className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
-              <input
-                type='text'
-                {...register('image', { required: 'Image URL is required' })}
-                className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-purple-500 focus:bg-white/10 transition text-sm'
-                placeholder='https://res.cloudinary.com/...'
-              />
-            </div>
-            {errors.image && (
-              <p className='text-red-400 text-xs mt-1'>{errors.image.message}</p>
-            )}
+        {/* Redirect URL */}
+        <div>
+          <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
+            Redirection URL
+          </label>
+          <div className='relative'>
+            <LinkIcon className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
+            <input
+              type='text'
+              {...register('redirectUrl', { required: 'Redirect URL is required' })}
+              className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-purple-500 focus:bg-white/10 transition text-sm'
+              placeholder='https://example.com'
+            />
           </div>
-
-          {/* Redirect URL */}
-          <div>
-            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2'>
-              Redirection URL
-            </label>
-            <div className='relative'>
-              <LinkIcon className='w-4 h-4 text-gray-400 absolute left-4 top-3.5' />
-              <input
-                type='text'
-                {...register('redirectUrl', { required: 'Redirect URL is required' })}
-                className='w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-gray-400 outline-none focus:border-purple-500 focus:bg-white/10 transition text-sm'
-                placeholder='https://example.com'
-              />
-            </div>
-            {errors.redirectUrl && (
-              <p className='text-red-400 text-xs mt-1'>{errors.redirectUrl.message}</p>
-            )}
-          </div>
+          {errors.redirectUrl && (
+            <p className='text-red-400 text-xs mt-1'>{errors.redirectUrl.message}</p>
+          )}
         </div>
 
         {/* Submit Button */}
@@ -210,7 +213,7 @@ const CreateProject = () => {
             type='submit'
             className='px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold text-sm hover:shadow-lg hover:shadow-purple-600/30 transition transform hover:-translate-y-0.5'
           >
-            {isLoading ? 'Creating Project...' : 'Publish Project'}
+            {isLoading ? 'Publishing Project...' : 'Publish Project'}
           </button>
         </div>
       </form>

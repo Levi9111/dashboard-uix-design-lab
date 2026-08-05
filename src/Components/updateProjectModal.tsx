@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useUpdateProjectMutation } from '../redux/api/projectsApi';
 import GalacticModal from './ui/GalacticModal';
+import ImageUploader from './ui/ImageUploader';
 import { useState } from 'react';
 import ToastMessage from './ui/ToastMessage';
 
@@ -9,6 +10,7 @@ interface Props {
     _id: string;
     title: string;
     description: string;
+    image?: string;
   };
   onClose: () => void;
   onSuccess: () => void;
@@ -25,14 +27,17 @@ const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
     type: 'success',
   });
   const [updateProject, { isLoading }] = useUpdateProjectMutation();
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       title: project.title,
       description: project.description,
+      image: project.image || '',
     },
   });
 
-  const onSubmit = async (data: { title: string; description: string }) => {
+  const currentImage = watch('image');
+
+  const onSubmit = async (data: { title: string; description: string; image?: string }) => {
     try {
       const result = await updateProject({
         id: project._id,
@@ -69,7 +74,13 @@ const UpdateProjectModal = ({ project, onClose, onSuccess }: Props) => {
         message={toast.message}
         type={toast.type}
       />
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-5 mt-4'>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 mt-4'>
+        <ImageUploader
+          label='Project Showcase Image'
+          value={currentImage}
+          onChange={(url) => setValue('image', url)}
+        />
+
         <div>
           <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5'>
             Project Title

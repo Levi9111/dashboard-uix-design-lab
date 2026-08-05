@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useUpdateReviewMutation } from '../redux/api/reviewsApi';
 import GalacticModal from './ui/GalacticModal';
+import ImageUploader from './ui/ImageUploader';
 import { useState } from 'react';
 import ToastMessage from './ui/ToastMessage';
 import type { Review } from './ReviewsList';
@@ -23,15 +24,18 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
   });
 
   const [updateReview, { isLoading }] = useUpdateReviewMutation();
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       name: review.name,
       role: review.role,
       company: review.company || '',
       testimonial: review.testimonial || review.description || '',
       roi: review.roi || '',
+      avatarUrl: review.avatarUrl || '',
     },
   });
+
+  const currentAvatar = watch('avatarUrl');
 
   const onSubmit = async (data: Partial<Review>) => {
     try {
@@ -43,6 +47,7 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
           company: data.company,
           testimonial: data.testimonial || data.description,
           roi: data.roi,
+          avatarUrl: data.avatarUrl,
         },
       }).unwrap();
 
@@ -77,6 +82,12 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
         type={toast.type}
       />
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 mt-4'>
+        <ImageUploader
+          label='Client Profile Avatar'
+          value={currentAvatar}
+          onChange={(url) => setValue('avatarUrl', url)}
+        />
+
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
           <div>
             <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5'>
