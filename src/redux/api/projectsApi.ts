@@ -6,7 +6,8 @@ export interface IProject {
   title: string;
   description: string;
   image: string;
-  categoryId: ICategory | string;
+  categoryId?: ICategory | string;
+  category?: ICategory;
   redirectUrl: string;
 }
 

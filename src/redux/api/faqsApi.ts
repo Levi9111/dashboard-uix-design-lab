@@ -4,7 +4,8 @@ export interface IFAQ {
   _id?: string;
   question: string;
   answer: string;
-  iconName: string;
+  iconName?: string;
+  icon?: string;
   category?: string;
   order?: number;
 }

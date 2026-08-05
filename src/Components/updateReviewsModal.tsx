@@ -23,16 +23,13 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
   });
 
   const [updateReview, { isLoading }] = useUpdateReviewMutation();
-  const { register, handleSubmit, reset } = useForm({
+  const { register, handleSubmit } = useForm({
     defaultValues: {
       name: review.name,
       role: review.role,
       company: review.company || '',
       testimonial: review.testimonial || review.description || '',
-      roi: review.roi,
-      stats: {
-        Conversations: review.stats?.Conversations || '',
-      },
+      roi: review.roi || '',
     },
   });
 
@@ -46,7 +43,6 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
           company: data.company,
           testimonial: data.testimonial || data.description,
           roi: data.roi,
-          stats: data.stats,
         },
       }).unwrap();
 
@@ -57,7 +53,6 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
           message: 'Review updated successfully',
           type: 'success',
         });
-        reset();
       } else {
         setToast({
           show: true,
@@ -65,8 +60,7 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
           type: 'error',
         });
       }
-    } catch (err) {
-      console.error('Update failed:', err);
+    } catch {
       setToast({
         show: true,
         message: 'Update failed',
@@ -76,84 +70,81 @@ const UpdateReviewModal = ({ review, onClose, onSuccess }: Props) => {
   };
 
   return (
-    <GalacticModal isOpen={true} onClose={onClose} title='Update Review'>
+    <GalacticModal isOpen={true} onClose={onClose} title='Update Review Details'>
       <ToastMessage
         show={toast.show}
         message={toast.message}
         type={toast.type}
       />
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-5 mt-6'>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 mt-4'>
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
           <div>
-            <label className='block mb-1 text-white font-medium'>Company</label>
-            <input
-              {...register('company', { required: true })}
-              className='w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg outline-none focus:border-purple-400'
-            />
-          </div>
-
-          <div>
-            <label className='block mb-1 text-white font-medium'>Name</label>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5'>
+              Client Name
+            </label>
             <input
               {...register('name', { required: true })}
-              className='w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg outline-none focus:border-purple-400'
+              className='w-full px-4 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl outline-none focus:border-cyan-500 text-sm'
             />
           </div>
 
           <div>
-            <label className='block mb-1 text-white font-medium'>Role</label>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5'>
+              Company Name
+            </label>
+            <input
+              {...register('company')}
+              className='w-full px-4 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl outline-none focus:border-cyan-500 text-sm'
+            />
+          </div>
+
+          <div>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5'>
+              Role & Title
+            </label>
             <input
               {...register('role', { required: true })}
-              className='w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg outline-none focus:border-purple-400'
+              className='w-full px-4 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl outline-none focus:border-cyan-500 text-sm'
+            />
+          </div>
+
+          <div>
+            <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5'>
+              ROI Impact Tag
+            </label>
+            <input
+              {...register('roi')}
+              placeholder='e.g. 42%'
+              className='w-full px-4 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl outline-none focus:border-cyan-500 text-sm'
             />
           </div>
         </div>
 
         <div>
-          <label className='block mb-1 text-white font-medium'>
-            Testimonial
+          <label className='block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5'>
+            Testimonial Content
           </label>
           <textarea
-            {...register('testimonial', { required: true })}
             rows={4}
-            className='w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg outline-none focus:border-purple-400 resize-none'
+            {...register('testimonial', { required: true })}
+            className='w-full px-4 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl outline-none focus:border-cyan-500 text-sm resize-none'
           />
         </div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-          <div>
-            <label className='block mb-1 text-white font-medium'>ROI</label>
-            <input
-              {...register('roi')}
-              className='w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg outline-none focus:border-purple-400'
-            />
-          </div>
-
-          <div>
-            <label className='block mb-1 text-white font-medium'>
-              Conversions
-            </label>
-            <input
-              {...register('stats.Conversations')}
-              className='w-full px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg outline-none focus:border-purple-400'
-            />
-          </div>
-        </div>
-
-        <div className='flex justify-end gap-4 mt-6'>
+        <div className='flex justify-end gap-3 pt-4 border-t border-white/10'>
           <button
             type='button'
             onClick={onClose}
-            className='px-4 py-2 border rounded-lg text-sm text-white/70 hover:text-white hover:border-purple-400 transition'
+            className='px-5 py-2.5 rounded-xl border border-white/15 text-gray-400 hover:text-white transition text-xs font-semibold'
           >
             Cancel
           </button>
           <button
             type='submit'
             disabled={isLoading}
-            className='px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:scale-[1.02] transition'
+            className='px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold hover:shadow-lg transition text-xs'
           >
-            {isLoading ? 'Updating...' : 'Update'}
+            {isLoading ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>
